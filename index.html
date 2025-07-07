@@ -1,0 +1,1393 @@
+⏺ <!DOCTYPE html>
+  <html lang="ko">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+      <title>나와 가족의 감정 관계 그래프</title>
+      <style>
+          body {
+              font-family: 'Malgun Gothic', sans-serif;
+              margin: 0;
+              padding: 20px;
+              background-color: #f5f5f5;
+          }
+
+          .worksheet {
+              max-width: 1000px;
+              margin: 0 auto;
+              background: white;
+              padding: 30px;
+              border-radius: 10px;
+              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          }
+
+          h1 {
+              text-align: center;
+              color: #2c3e50;
+              margin-bottom: 10px;
+              font-size: 28px;
+          }
+
+          .subtitle {
+              text-align: center;
+              color: #7f8c8d;
+              margin-bottom: 30px;
+              font-size: 16px;
+          }
+
+          .info-section {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 30px;
+              padding: 15px;
+              background-color: #f8f9fa;
+              border-radius: 8px;
+              flex-wrap: wrap;
+              gap: 15px;
+          }
+
+          .info-item {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              flex: 1;
+              min-width: 200px;
+          }
+
+          .info-item label {
+              font-weight: bold;
+              color: #2c3e50;
+          }
+
+          .info-item input {
+              border: none;
+              border-bottom: 2px solid #3498db;
+              padding: 5px;
+              font-size: 16px;
+              background: transparent;
+              flex: 1;
+          }
+
+          /* 저장/불러오기 버튼 영역 */
+          .save-load-section {
+              display: flex;
+              gap: 10px;
+              margin-bottom: 20px;
+              padding: 15px;
+              background: #e3f2fd;
+              border-radius: 8px;
+              flex-wrap: wrap;
+          }
+
+          .btn-save, .btn-load, .btn-new, .btn-download {
+              padding: 10px 20px;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              font-size: 14px;
+              transition: all 0.3s ease;
+              font-weight: bold;
+          }
+
+          .btn-save {
+              background: #2196F3;
+              color: white;
+          }
+
+          .btn-save:hover {
+              background: #1976D2;
+          }
+
+          .btn-load {
+              background: #FF9800;
+              color: white;
+          }
+
+          .btn-load:hover {
+              background: #F57C00;
+          }
+
+          .btn-new {
+              background: #9C27B0;
+              color: white;
+          }
+
+          .btn-new:hover {
+              background: #7B1FA2;
+          }
+
+          .btn-download {
+              background: #4CAF50;
+              color: white;
+          }
+
+          .btn-download:hover {
+              background: #388E3C;
+          }
+
+          /* 저장된 목록 모달 */
+          .modal {
+              display: none;
+              position: fixed;
+              z-index: 1000;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              background-color: rgba(0,0,0,0.5);
+          }
+
+          .modal-content {
+              background-color: white;
+              margin: 10% auto;
+              padding: 20px;
+              border: 1px solid #888;
+              width: 90%;
+              max-width: 500px;
+              border-radius: 10px;
+              max-height: 70vh;
+              overflow-y: auto;
+          }
+
+          .close {
+              color: #aaa;
+              float: right;
+              font-size: 28px;
+              font-weight: bold;
+              cursor: pointer;
+          }
+
+          .close:hover {
+              color: black;
+          }
+
+          .saved-item {
+              padding: 15px;
+              margin: 10px 0;
+              background: #f8f9fa;
+              border-radius: 8px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+          }
+
+          .saved-item:hover {
+              background: #e9ecef;
+              transform: translateX(5px);
+          }
+
+          .saved-item-info {
+              flex: 1;
+          }
+
+          .saved-item-title {
+              font-weight: bold;
+              color: #2c3e50;
+              margin-bottom: 5px;
+          }
+
+          .saved-item-date {
+              font-size: 12px;
+              color: #7f8c8d;
+          }
+
+          .delete-saved {
+              background: #e74c3c;
+              color: white;
+              border: none;
+              padding: 5px 10px;
+              border-radius: 5px;
+              cursor: pointer;
+              font-size: 12px;
+          }
+
+          .delete-saved:hover {
+              background: #c0392b;
+          }
+
+          .controls {
+              display: flex;
+              gap: 20px;
+              margin-bottom: 20px;
+              padding: 15px;
+              background: #ecf0f1;
+              border-radius: 8px;
+              flex-wrap: wrap;
+              align-items: center;
+          }
+
+          .control-group {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+          }
+
+          button {
+              padding: 8px 16px;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              font-size: 14px;
+              transition: all 0.3s ease;
+          }
+
+          .btn-add {
+              background: #27ae60;
+              color: white;
+          }
+
+          .btn-add:hover {
+              background: #229954;
+          }
+
+          .btn-clear {
+              background: #e74c3c;
+              color: white;
+          }
+
+          .btn-clear:hover {
+              background: #c0392b;
+          }
+
+          .line-controls {
+              display: flex;
+              gap: 10px;
+              align-items: center;
+          }
+
+          .line-type {
+              padding: 5px 10px;
+              border: 2px solid #95a5a6;
+              background: white;
+              cursor: pointer;
+              border-radius: 5px;
+          }
+
+          .line-type.active {
+              background: #34495e;
+              color: white;
+              border-color: #34495e;
+          }
+
+          .color-type {
+              padding: 5px 10px;
+              border: 2px solid #95a5a6;
+              cursor: pointer;
+              border-radius: 5px;
+              color: white;
+          }
+
+          .color-type.blue {
+              background: #3498db;
+              border-color: #3498db;
+          }
+
+          .color-type.red {
+              background: #e74c3c;
+              border-color: #e74c3c;
+          }
+
+          .color-type.active {
+              box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
+          }
+
+          .graph-container {
+              position: relative;
+              width: 100%;
+              height: 600px;
+              border: 3px solid #ecf0f1;
+              border-radius: 15px;
+              background: white;
+              margin-bottom: 30px;
+              overflow: hidden;
+              touch-action: none;
+          }
+
+          svg {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+          }
+
+          svg line {
+              cursor: pointer;
+              transition: stroke-width 0.3s ease;
+          }
+
+          svg line:hover {
+              opacity: 0.8;
+          }
+
+          .center-circle {
+              position: absolute;
+              width: 80px;
+              height: 80px;
+              background: #3498db;
+              border-radius: 50%;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: bold;
+              font-size: 24px;
+              z-index: 10;
+              box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+              pointer-events: none;
+          }
+
+          .family-member {
+              position: absolute;
+              width: 70px;
+              height: 70px;
+              border: 3px solid #95a5a6;
+              border-radius: 50%;
+              background: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 14px;
+              font-weight: bold;
+              color: #2c3e50;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              touch-action: none;
+              user-select: none;
+          }
+
+          .family-member:hover {
+              transform: scale(1.1);
+              box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+          }
+
+          .family-member.selected {
+              border-color: #f39c12;
+              background: #fff4e6;
+          }
+
+          .family-member.dragging {
+              opacity: 0.7;
+              z-index: 100;
+          }
+
+          .delete-btn {
+              position: absolute;
+              top: -5px;
+              right: -5px;
+              width: 20px;
+              height: 20px;
+              background: #e74c3c;
+              color: white;
+              border-radius: 50%;
+              display: none;
+              align-items: center;
+              justify-content: center;
+              font-size: 12px;
+              cursor: pointer;
+          }
+
+          .family-member:hover .delete-btn {
+              display: flex;
+          }
+
+          .thickness-selector {
+              position: absolute;
+              background: white;
+              border: 2px solid #34495e;
+              border-radius: 10px;
+              padding: 10px;
+              box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+              display: none;
+              z-index: 100;
+          }
+
+          .thickness-selector h4 {
+              margin: 0 0 10px 0;
+              color: #34495e;
+              font-size: 14px;
+          }
+
+          .thickness-options {
+              display: flex;
+              gap: 10px;
+          }
+
+          .thickness-option {
+              width: 40px;
+              height: 40px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              border: 2px solid #ecf0f1;
+              border-radius: 5px;
+              transition: all 0.3s ease;
+          }
+
+          .thickness-option:hover {
+              background: #ecf0f1;
+              transform: scale(1.1);
+          }
+
+          .thickness-option div {
+              background: #34495e;
+              border-radius: 2px;
+              width: 30px;
+          }
+
+          .legend {
+              background: #ecf0f1;
+              padding: 20px;
+              border-radius: 10px;
+              margin-bottom: 30px;
+          }
+
+          .legend h3 {
+              margin-top: 0;
+              color: #2c3e50;
+              font-size: 18px;
+              margin-bottom: 15px;
+          }
+
+          .legend-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+          }
+
+          .legend-item {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+          }
+
+          .line-sample {
+              width: 50px;
+              height: 4px;
+              border-radius: 2px;
+          }
+
+          .thick { height: 6px; }
+          .thin { height: 2px; }
+          .red { background-color: #e74c3c; }
+          .blue { background-color: #3498db; }
+
+          .instruction-box {
+              background: #fff4e6;
+              border: 2px solid #f39c12;
+              border-radius: 10px;
+              padding: 20px;
+              margin-bottom: 30px;
+          }
+
+          .instruction-box h3 {
+              color: #d68910;
+              margin-top: 0;
+              font-size: 18px;
+          }
+
+          .instruction-box ol {
+              margin: 10px 0;
+              padding-left: 25px;
+              line-height: 1.8;
+          }
+
+          .reflection-section {
+              background: #e8f5e9;
+              border-radius: 10px;
+              padding: 25px;
+          }
+
+          .reflection-section h3 {
+              color: #2e7d32;
+              margin-bottom: 20px;
+              font-size: 18px;
+          }
+
+          .reflection-question {
+              margin-bottom: 20px;
+          }
+
+          .reflection-question label {
+              display: block;
+              color: #1b5e20;
+              font-weight: bold;
+              margin-bottom: 10px;
+          }
+
+          .reflection-question textarea {
+              width: 100%;
+              min-height: 80px;
+              padding: 10px;
+              border: 2px solid #81c784;
+              border-radius: 5px;
+              font-size: 14px;
+              resize: vertical;
+              box-sizing: border-box;
+          }
+
+          /* 자동 저장 표시 */
+          .auto-save-indicator {
+              position: fixed;
+              bottom: 20px;
+              right: 20px;
+              background: #4CAF50;
+              color: white;
+              padding: 10px 20px;
+              border-radius: 5px;
+              opacity: 0;
+              transition: opacity 0.3s ease;
+              z-index: 1000;
+              font-size: 14px;
+          }
+
+          .auto-save-indicator.show {
+              opacity: 1;
+          }
+
+          /* 모바일 대응 */
+          @media (max-width: 768px) {
+              body {
+                  padding: 10px;
+              }
+
+              .worksheet {
+                  padding: 15px;
+              }
+
+              h1 {
+                  font-size: 22px;
+              }
+
+              .info-section {
+                  flex-direction: column;
+              }
+
+              .info-item {
+                  min-width: auto;
+              }
+
+              .controls {
+                  flex-direction: column;
+                  align-items: stretch;
+              }
+
+              .control-group, .line-controls {
+                  flex-wrap: wrap;
+                  justify-content: center;
+              }
+
+              .graph-container {
+                  height: 400px;
+              }
+
+              .family-member {
+                  width: 60px;
+                  height: 60px;
+                  font-size: 12px;
+              }
+
+              .center-circle {
+                  width: 70px;
+                  height: 70px;
+                  font-size: 20px;
+              }
+
+              .legend-grid {
+                  grid-template-columns: 1fr;
+                  gap: 10px;
+              }
+
+              .save-load-section {
+                  justify-content: center;
+              }
+
+              .save-load-section button {
+                  flex: 1;
+                  min-width: 120px;
+              }
+
+              /* 모바일에서 두꺼운 선택 버튼 */
+              .thickness-selector {
+                  left: 50% !important;
+                  transform: translateX(-50%);
+              }
+          }
+
+          @media print {
+              .controls, .save-load-section {
+                  display: none;
+              }
+              .thickness-selector {
+                  display: none !important;
+              }
+              .auto-save-indicator {
+                  display: none;
+              }
+          }
+      </style>
+  </head>
+  <body>
+      <div class="worksheet">
+          <h1>나와 가족의 감정 관계 그래프</h1>
+          <p class="subtitle">우리 가족과 나는 어떤 감정으로 연결되어 있을까요?</p>
+
+          <div class="info-section">
+              <div class="info-item">
+                  <label>이름:</label>
+                  <input type="text" id="userName" placeholder="이름을 써주세요">
+              </div>
+              <div class="info-item">
+                  <label>날짜:</label>
+                  <input type="text" id="userDate" placeholder="____년 __월 __일">
+              </div>
+              <div class="info-item">
+                  <label>오늘의 감정 날씨:</label>
+                  <input type="text" id="userMood" placeholder="☀️ ⛅ 🌧️ ⛈️">
+              </div>
+          </div>
+
+          <!-- 저장/불러오기 섹션 -->
+          <div class="save-load-section">
+              <button class="btn-save" onclick="saveToLocal()">💾 저장하기</button>
+              <button class="btn-load" onclick="showLoadModal()">📂 불러오기</button>
+              <button class="btn-new" onclick="createNew()">🆕 새로 만들기</button>
+              <button class="btn-download" onclick="downloadAsImage()">📸 이미지 다운로드</button>
+          </div>
+
+          <!-- 불러오기 모달 -->
+          <div id="loadModal" class="modal">
+              <div class="modal-content">
+                  <span class="close" onclick="closeLoadModal()">&times;</span>
+                  <h3>저장된 그래프 목록</h3>
+                  <div id="savedList"></div>
+              </div>
+          </div>
+
+          <div class="instruction-box">
+              <h3>📝 활동 방법</h3>
+              <ol>
+                  <li>'가족 추가' 버튼을 눌러 가족 구성원을 추가하세요.</li>
+                  <li>선의 굵기(굵은 선/얇은 선)와 색깔(파랑/빨강)을 선택하세요.</li>
+                  <li>가족 구성원을 클릭하면 나와 연결선이 그려집니다.</li>
+                  <li><strong>그려진 선을 클릭하면 굵기를 5단계로 세밀하게 조정할 수 있습니다.</strong></li>
+                  <li><strong>모바일: 가족 구성원을 길게 누르고 드래그해서 위치를 조정할 수 있습니다.</strong></li>
+                  <li>가족 구성원을 삭제하려면 마우스를 올려놓고 X 버튼을 클릭하세요.</li>
+                  <li><strong>자동 저장: 변경사항이 자동으로 저장됩니다.</strong></li>
+              </ol>
+          </div>
+
+          <div class="controls">
+              <div class="control-group">
+                  <button class="btn-add" onclick="addFamilyMember()">➕ 가족 추가</button>
+                  <button class="btn-clear" onclick="clearAllLines()">🗑️ 선 모두 지우기</button>
+              </div>
+              <div class="line-controls">
+                  <span>선 굵기:</span>
+                  <button class="line-type active" onclick="setLineThickness('thick')">굵은 선</button>
+                  <button class="line-type" onclick="setLineThickness('thin')">얇은 선</button>
+              </div>
+              <div class="line-controls">
+                  <span>선 색깔:</span>
+                  <button class="color-type blue active" onclick="setLineColor('blue')">긍정적</button>
+                  <button class="color-type red" onclick="setLineColor('red')">부정적</button>
+              </div>
+          </div>
+
+          <div class="legend">
+              <h3>📊 선 그리기 안내</h3>
+              <div class="legend-grid">
+                  <div class="legend-item">
+                      <div class="line-sample thick blue"></div>
+                      <span>감정 교류 많음 + 긍정적 (파랑)</span>
+                  </div>
+                  <div class="legend-item">
+                      <div class="line-sample thick red"></div>
+                      <span>감정 교류 많음 + 부정적 (빨강)</span>
+                  </div>
+                  <div class="legend-item">
+                      <div class="line-sample thin blue"></div>
+                      <span>감정 교류 적음 + 긍정적 (파랑)</span>
+                  </div>
+                  <div class="legend-item">
+                      <div class="line-sample thin red"></div>
+                      <span>감정 교류 적음 + 부정적 (빨강)</span>
+                  </div>
+              </div>
+              <p style="margin-top: 15px; color: #7f8c8d; font-size: 14px;">
+                  💡 Tip: 선을 그린 후 클릭하면 굵기를 1-5단계로 세밀하게 조정할 수 있어요!
+              </p>
+          </div>
+
+          <div class="graph-container" id="graphContainer">
+              <svg id="linesSvg"></svg>
+              <div class="center-circle" id="center">나</div>
+              <div class="thickness-selector" id="thicknessSelector">
+                  <h4>선 굵기 선택 (1-5)</h4>
+                  <div class="thickness-options">
+                      <div class="thickness-option" onclick="updateLineThickness(2)">
+                          <div style="height: 2px;">1</div>
+                      </div>
+                      <div class="thickness-option" onclick="updateLineThickness(4)">
+                          <div style="height: 4px;">2</div>
+                      </div>
+                      <div class="thickness-option" onclick="updateLineThickness(6)">
+                          <div style="height: 6px;">3</div>
+                      </div>
+                      <div class="thickness-option" onclick="updateLineThickness(8)">
+                          <div style="height: 8px;">4</div>
+                      </div>
+                      <div class="thickness-option" onclick="updateLineThickness(10)">
+                          <div style="height: 10px;">5</div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="reflection-section">
+              <h3>🤔 생각해보기</h3>
+
+              <div class="reflection-question">
+                  <label>1. 가장 두꺼운 선으로 연결된 가족은 누구인가요? 왜 그럴까요?</label>
+                  <textarea id="reflection1" placeholder="예: 엄마와 가장 두꺼운 선으로 연결되어 있어요. 왜냐하면..."></textarea>
+              </div>
+
+              <div class="reflection-question">
+                  <label>2. 빨간색 선이 있다면, 어떻게 하면 파란색으로 바꿀 수 있을까요?</label>
+                  <textarea id="reflection2" placeholder="예: 동생과 빨간 선인데, 서로 이해하려고 노력하면..."></textarea>
+              </div>
+
+              <div class="reflection-question">
+                  <label>3. 얇은 선으로 연결된 가족과 더 가까워지려면 어떻게 해야 할까요?</label>
+                  <textarea id="reflection3" placeholder="예: 아빠와 대화를 더 많이 나누면..."></textarea>
+              </div>
+
+              <div class="reflection-question">
+                  <label>4. 오늘 나의 감정이 가족에게 어떤 영향을 주었나요?</label>
+                  <textarea id="reflection4" placeholder="예: 내가 기분이 좋으니까 동생도 기분이 좋아 보였어요..."></textarea>
+              </div>
+          </div>
+      </div>
+
+      <!-- 자동 저장 표시 -->
+      <div class="auto-save-indicator" id="autoSaveIndicator">
+          ✅ 자동 저장됨
+      </div>
+
+      <script>
+          let currentThickness = 'thick';
+          let currentColor = 'blue';
+          let familyMembers = [];
+          let lines = [];
+          let memberCount = 0;
+          let selectedLine = null;
+          let autoSaveTimeout = null;
+          let isDragging = false;
+          let draggedMember = null;
+          let dragOffset = { x: 0, y: 0 };
+
+          // 페이지 로드 시 자동 불러오기
+          window.addEventListener('load', () => {
+              loadAutoSave();
+          });
+
+          // localStorage 키
+          const STORAGE_KEY = 'family_emotion_graphs';
+          const AUTOSAVE_KEY = 'family_emotion_autosave';
+
+          function setLineThickness(thickness) {
+              currentThickness = thickness;
+              document.querySelectorAll('.line-type').forEach(btn => btn.classList.remove('active'));
+              event.target.classList.add('active');
+          }
+
+          function setLineColor(color) {
+              currentColor = color;
+              document.querySelectorAll('.color-type').forEach(btn => btn.classList.remove('active'));
+              event.target.classList.add('active');
+          }
+
+          function addFamilyMember() {
+              const name = prompt('가족 구성원의 이름이나 호칭을 입력하세요:');
+              if (!name) return;
+
+              const container = document.getElementById('graphContainer');
+              const member = document.createElement('div');
+              member.className = 'family-member';
+              member.innerHTML = `${name}<div class="delete-btn" onclick="deleteFamilyMember(event, this.parentElement)">×</div>`;
+              member.id = `member-${memberCount++}`;
+
+              // 원형으로 배치
+              const angle = (familyMembers.length * 60) * Math.PI / 180;
+              const radius = 200;
+              const centerX = container.offsetWidth / 2;
+              const centerY = container.offsetHeight / 2;
+
+              member.style.left = (centerX + radius * Math.cos(angle) - 35) + 'px';
+              member.style.top = (centerY + radius * Math.sin(angle) - 35) + 'px';
+
+              // 클릭 이벤트
+              member.onclick = function(e) {
+                  if (e.target.className === 'delete-btn') return;
+                  if (!isDragging) {
+                      drawLine(this);
+                  }
+              };
+
+              // 드래그 이벤트 (모바일/데스크톱 공통)
+              setupDragEvents(member);
+
+              container.appendChild(member);
+              familyMembers.push(member);
+
+              // 자동 저장
+              autoSave();
+          }
+
+          function setupDragEvents(member) {
+              let startX, startY, initialLeft, initialTop;
+              let longPressTimer;
+              let hasMoved = false;
+
+              // 터치 이벤트
+              member.addEventListener('touchstart', (e) => {
+                  e.preventDefault();
+                  const touch = e.touches[0];
+                  startX = touch.clientX;
+                  startY = touch.clientY;
+                  initialLeft = member.offsetLeft;
+                  initialTop = member.offsetTop;
+                  hasMoved = false;
+
+                  // 길게 누르기 감지
+                  longPressTimer = setTimeout(() => {
+                      member.classList.add('dragging');
+                      isDragging = true;
+                      draggedMember = member;
+                  }, 300);
+              });
+
+              member.addEventListener('touchmove', (e) => {
+                  e.preventDefault();
+                  const touch = e.touches[0];
+                  const deltaX = touch.clientX - startX;
+                  const deltaY = touch.clientY - startY;
+
+                  // 움직임 감지
+                  if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                      hasMoved = true;
+                      clearTimeout(longPressTimer);
+
+                      if (isDragging && draggedMember === member) {
+                          member.style.left = (initialLeft + deltaX) + 'px';
+                          member.style.top = (initialTop + deltaY) + 'px';
+                          updateConnectedLines(member);
+                      }
+                  }
+              });
+
+              member.addEventListener('touchend', (e) => {
+                  e.preventDefault();
+                  clearTimeout(longPressTimer);
+
+                  if (isDragging && draggedMember === member) {
+                      member.classList.remove('dragging');
+                      isDragging = false;
+                      draggedMember = null;
+                      autoSave();
+                  } else if (!hasMoved) {
+                      // 짧은 탭 = 선 그리기
+                      drawLine(member);
+                  }
+              });
+
+              // 마우스 이벤트 (데스크톱)
+              member.addEventListener('mousedown', (e) => {
+                  if (e.target.className === 'delete-btn') return;
+                  e.preventDefault();
+                  startX = e.clientX;
+                  startY = e.clientY;
+                  initialLeft = member.offsetLeft;
+                  initialTop = member.offsetTop;
+                  member.classList.add('dragging');
+                  isDragging = true;
+                  draggedMember = member;
+              });
+          }
+
+          // 전역 마우스 이벤트
+          document.addEventListener('mousemove', (e) => {
+              if (isDragging && draggedMember) {
+                  const container = document.getElementById('graphContainer');
+                  const rect = container.getBoundingClientRect();
+                  let newLeft = e.clientX - rect.left - 35;
+                  let newTop = e.clientY - rect.top - 35;
+
+                  // 컨테이너 경계 체크
+                  newLeft = Math.max(0, Math.min(newLeft, container.offsetWidth - 70));
+                  newTop = Math.max(0, Math.min(newTop, container.offsetHeight - 70));
+
+                  draggedMember.style.left = newLeft + 'px';
+                  draggedMember.style.top = newTop + 'px';
+
+                  updateConnectedLines(draggedMember);
+              }
+          });
+
+          document.addEventListener('mouseup', () => {
+              if (isDragging && draggedMember) {
+                  draggedMember.classList.remove('dragging');
+                  isDragging = false;
+                  draggedMember = null;
+                  autoSave();
+              }
+          });
+
+          function updateConnectedLines(member) {
+              const memberId = member.id;
+              const svg = document.getElementById('linesSvg');
+              const center = document.getElementById('center');
+              const container = document.getElementById('graphContainer');
+
+              const centerRect = center.getBoundingClientRect();
+              const memberRect = member.getBoundingClientRect();
+              const containerRect = container.getBoundingClientRect();
+
+              const x1 = centerRect.left + centerRect.width / 2 - containerRect.left;
+              const y1 = centerRect.top + centerRect.height / 2 - containerRect.top;
+              const x2 = memberRect.left + memberRect.width / 2 - containerRect.left;
+              const y2 = memberRect.top + memberRect.height / 2 - containerRect.top;
+
+              // 해당 멤버의 선 업데이트
+              lines.forEach(line => {
+                  if (line.memberId === memberId) {
+                      line.element.setAttribute('x2', x2);
+                      line.element.setAttribute('y2', y2);
+                  }
+              });
+          }
+
+          function deleteFamilyMember(event, member) {
+              event.stopPropagation();
+              const memberId = member.id;
+
+              // 해당 멤버와 연결된 선 삭제
+              lines = lines.filter(line => {
+                  if (line.memberId === memberId) {
+                      line.element.remove();
+                      return false;
+                  }
+                  return true;
+              });
+
+              // 멤버 삭제
+              member.remove();
+              familyMembers = familyMembers.filter(m => m.id !== memberId);
+
+              // 자동 저장
+              autoSave();
+          }
+
+          function drawLine(member) {
+              const memberId = member.id;
+
+              // 이미 연결된 선이 있는지 확인
+              const existingLineIndex = lines.findIndex(line => line.memberId === memberId);
+              if (existingLineIndex !== -1) {
+                  // 기존 선 삭제
+                  lines[existingLineIndex].element.remove();
+                  lines.splice(existingLineIndex, 1);
+              }
+
+              const svg = document.getElementById('linesSvg');
+              const center = document.getElementById('center');
+              const container = document.getElementById('graphContainer');
+
+              const centerRect = center.getBoundingClientRect();
+              const memberRect = member.getBoundingClientRect();
+              const containerRect = container.getBoundingClientRect();
+
+              const x1 = centerRect.left + centerRect.width / 2 - containerRect.left;
+              const y1 = centerRect.top + centerRect.height / 2 - containerRect.top;
+              const x2 = memberRect.left + memberRect.width / 2 - containerRect.left;
+              const y2 = memberRect.top + memberRect.height / 2 - containerRect.top;
+
+              const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              line.setAttribute('x1', x1);
+              line.setAttribute('y1', y1);
+              line.setAttribute('x2', x2);
+              line.setAttribute('y2', y2);
+
+              // 선 스타일 설정
+              const strokeWidth = currentThickness === 'thick' ? '6' : '2';
+              const strokeColor = currentColor === 'blue' ? '#3498db' : '#e74c3c';
+
+              line.setAttribute('stroke', strokeColor);
+              line.setAttribute('stroke-width', strokeWidth);
+
+              // 선 클릭 이벤트
+              line.onclick = function(e) {
+                  e.stopPropagation();
+                  showThicknessSelector(e, line);
+              };
+
+              svg.appendChild(line);
+              lines.push({
+                  element: line,
+                  memberId: memberId,
+                  thickness: strokeWidth,
+                  color: currentColor
+              });
+
+              // 선택 표시
+              document.querySelectorAll('.family-member').forEach(m => m.classList.remove('selected'));
+              member.classList.add('selected');
+              setTimeout(() => member.classList.remove('selected'), 1000);
+
+              // 자동 저장
+              autoSave();
+          }
+
+          function showThicknessSelector(event, line) {
+              selectedLine = line;
+              const selector = document.getElementById('thicknessSelector');
+              const container = document.getElementById('graphContainer');
+              const containerRect = container.getBoundingClientRect();
+
+              // 선택기 위치 설정
+              selector.style.left = (event.clientX - containerRect.left - 100) + 'px';
+              selector.style.top = (event.clientY - containerRect.top - 60) + 'px';
+              selector.style.display = 'block';
+
+              // 클릭 외부 영역 클릭 시 닫기
+              setTimeout(() => {
+                  document.addEventListener('click', hideThicknessSelector);
+              }, 100);
+          }
+
+          function hideThicknessSelector() {
+              document.getElementById('thicknessSelector').style.display = 'none';
+              document.removeEventListener('click', hideThicknessSelector);
+          }
+
+          function updateLineThickness(thickness) {
+              if (selectedLine) {
+                  selectedLine.setAttribute('stroke-width', thickness);
+
+                  // lines 배열에서도 업데이트
+                  const lineData = lines.find(l => l.element === selectedLine);
+                  if (lineData) {
+                      lineData.thickness = thickness;
+                  }
+
+                  // 자동 저장
+                  autoSave();
+              }
+              hideThicknessSelector();
+          }
+
+          function clearAllLines() {
+              if (confirm('모든 연결선을 지우시겠습니까?')) {
+                  const svg = document.getElementById('linesSvg');
+                  svg.innerHTML = '';
+                  lines = [];
+                  autoSave();
+              }
+          }
+
+          // 자동 저장 함수
+          function autoSave() {
+              // 기존 타이머 취소
+              if (autoSaveTimeout) {
+                  clearTimeout(autoSaveTimeout);
+              }
+
+              // 300ms 후 저장
+              autoSaveTimeout = setTimeout(() => {
+                  const data = collectData();
+                  localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+                  showAutoSaveIndicator();
+              }, 300);
+          }
+
+          function showAutoSaveIndicator() {
+              const indicator = document.getElementById('autoSaveIndicator');
+              indicator.classList.add('show');
+              setTimeout(() => {
+                  indicator.classList.remove('show');
+              }, 2000);
+          }
+
+          // 데이터 수집
+          function collectData() {
+              const data = {
+                  userName: document.getElementById('userName').value,
+                  userDate: document.getElementById('userDate').value,
+                  userMood: document.getElementById('userMood').value,
+                  members: familyMembers.map(member => ({
+                      id: member.id,
+                      name: member.textContent.replace('×', '').trim(),
+                      left: member.style.left,
+                      top: member.style.top
+                  })),
+                  lines: lines.map(line => ({
+                      memberId: line.memberId,
+                      color: line.color,
+                      thickness: line.element.getAttribute('stroke-width')
+                  })),
+                  reflections: {
+                      reflection1: document.getElementById('reflection1').value,
+                      reflection2: document.getElementById('reflection2').value,
+                      reflection3: document.getElementById('reflection3').value,
+                      reflection4: document.getElementById('reflection4').value
+                  },
+                  timestamp: new Date().toISOString()
+              };
+              return data;
+          }
+
+          // 데이터 복원
+          function restoreData(data) {
+              // 기존 내용 초기화
+              clearAll();
+
+              // 정보 복원
+              document.getElementById('userName').value = data.userName || '';
+              document.getElementById('userDate').value = data.userDate || '';
+              document.getElementById('userMood').value = data.userMood || '';
+
+              // 가족 구성원 복원
+              const container = document.getElementById('graphContainer');
+              data.members.forEach(memberData => {
+                  const member = document.createElement('div');
+                  member.className = 'family-member';
+                  member.innerHTML = `${memberData.name}<div class="delete-btn" onclick="deleteFamilyMember(event, this.parentElement)">×</div>`;
+                  member.id = memberData.id;
+                  member.style.left = memberData.left;
+                  member.style.top = memberData.top;
+
+                  member.onclick = function(e) {
+                      if (e.target.className === 'delete-btn') return;
+                      if (!isDragging) {
+                          drawLine(this);
+                      }
+                  };
+
+                  setupDragEvents(member);
+                  container.appendChild(member);
+                  familyMembers.push(member);
+              });
+
+              // 선 복원
+              setTimeout(() => {
+                  data.lines.forEach(lineData => {
+                      const member = document.getElementById(lineData.memberId);
+                      if (member) {
+                          currentColor = lineData.color;
+                          currentThickness = lineData.thickness > 3 ? 'thick' : 'thin';
+                          drawLine(member);
+                          // 선 굵기 직접 설정
+                          const lastLine = lines[lines.length - 1];
+                          if (lastLine) {
+                              lastLine.element.setAttribute('stroke-width', lineData.thickness);
+                          }
+                      }
+                  });
+
+                  // 색상과 굵기 버튼 상태 초기화
+                  currentColor = 'blue';
+                  currentThickness = 'thick';
+                  document.querySelectorAll('.color-type').forEach(btn => {
+                      btn.classList.toggle('active', btn.onclick.toString().includes(currentColor));
+                  });
+                  document.querySelectorAll('.line-type').forEach(btn => {
+                      btn.classList.toggle('active', btn.onclick.toString().includes(currentThickness));
+                  });
+              }, 100);
+
+              // 반성 문항 복원
+              if (data.reflections) {
+                  document.getElementById('reflection1').value = data.reflections.reflection1 || '';
+                  document.getElementById('reflection2').value = data.reflections.reflection2 || '';
+                  document.getElementById('reflection3').value = data.reflections.reflection3 || '';
+                  document.getElementById('reflection4').value = data.reflections.reflection4 || '';
+              }
+          }
+
+          // 저장하기
+          function saveToLocal() {
+              const name = document.getElementById('userName').value || '이름없음';
+              const date = new Date().toLocaleString('ko-KR');
+              const saveKey = `${name}_${Date.now()}`;
+
+              const data = collectData();
+              data.saveKey = saveKey;
+              data.displayName = `${name} - ${date}`;
+
+              // 기존 저장 목록 가져오기
+              const savedList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+              savedList[saveKey] = data;
+
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
+              alert('저장되었습니다!');
+          }
+
+          // 불러오기 모달 표시
+          function showLoadModal() {
+              const modal = document.getElementById('loadModal');
+              const savedList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+              const listContainer = document.getElementById('savedList');
+
+              listContainer.innerHTML = '';
+
+              if (Object.keys(savedList).length === 0) {
+                  listContainer.innerHTML = '<p style="text-align: center; color: #7f8c8d;">저장된 그래프가 없습니다.</p>';
+              } else {
+                  Object.entries(savedList).reverse().forEach(([key, data]) => {
+                      const item = document.createElement('div');
+                      item.className = 'saved-item';
+                      item.innerHTML = `
+                          <div class="saved-item-info" onclick="loadSaved('${key}')">
+                              <div class="saved-item-title">${data.displayName}</div>
+                              <div class="saved-item-date">${new Date(data.timestamp).toLocaleString('ko-KR')}</div>
+                          </div>
+                          <button class="delete-saved" onclick="deleteSaved('${key}')">삭제</button>
+                      `;
+                      listContainer.appendChild(item);
+                  });
+              }
+
+              modal.style.display = 'block';
+          }
+
+          function closeLoadModal() {
+              document.getElementById('loadModal').style.display = 'none';
+          }
+
+          // 저장된 데이터 불러오기
+          function loadSaved(key) {
+              const savedList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+              const data = savedList[key];
+
+              if (data) {
+                  restoreData(data);
+                  closeLoadModal();
+                  alert('불러오기 완료!');
+              }
+          }
+
+          // 저장된 데이터 삭제
+          function deleteSaved(key) {
+              if (confirm('정말 삭제하시겠습니까?')) {
+                  const savedList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                  delete savedList[key];
+                  localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
+                  showLoadModal(); // 목록 새로고침
+              }
+          }
+
+          // 새로 만들기
+          function createNew() {
+              if (confirm('현재 작업을 모두 지우고 새로 시작하시겠습니까?')) {
+                  clearAll();
+                  localStorage.removeItem(AUTOSAVE_KEY);
+              }
+          }
+
+          // 모두 지우기
+          function clearAll() {
+              // 입력 필드 초기화
+              document.getElementById('userName').value = '';
+              document.getElementById('userDate').value = '';
+              document.getElementById('userMood').value = '';
+
+              // 가족 구성원 제거
+              familyMembers.forEach(member => member.remove());
+              familyMembers = [];
+
+              // 선 제거
+              const svg = document.getElementById('linesSvg');
+              svg.innerHTML = '';
+              lines = [];
+
+              // 반성 문항 초기화
+              document.getElementById('reflection1').value = '';
+              document.getElementById('reflection2').value = '';
+              document.getElementById('reflection3').value = '';
+              document.getElementById('reflection4').value = '';
+
+              memberCount = 0;
+          }
+
+          // 자동 저장 불러오기
+          function loadAutoSave() {
+              const autoSaveData = localStorage.getItem(AUTOSAVE_KEY);
+              if (autoSaveData) {
+                  try {
+                      const data = JSON.parse(autoSaveData);
+                      restoreData(data);
+                  } catch (e) {
+                      console.error('자동 저장 데이터 복원 실패:', e);
+                  }
+              }
+          }
+
+          // 이미지 다운로드
+          function downloadAsImage() {
+              // html2canvas 라이브러리 동적 로드
+              if (!window.html2canvas) {
+                  const script = document.createElement('script');
+                  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                  script.onload = () => performDownload();
+                  document.head.appendChild(script);
+              } else {
+                  performDownload();
+              }
+          }
+
+          function performDownload() {
+              const worksheet = document.querySelector('.worksheet');
+              const userName = document.getElementById('userName').value || '가족관계';
+              const date = new Date().toLocaleDateString('ko-KR').replace(/\./g, '-');
+
+              html2canvas(worksheet, {
+                  scale: 2,
+                  backgroundColor: '#ffffff',
+                  logging: false
+              }).then(canvas => {
+                  const link = document.createElement('a');
+                  link.download = `${userName}_감정관계그래프_${date}.png`;
+                  link.href = canvas.toDataURL();
+                  link.click();
+              });
+          }
+
+          // 외부 클릭 시 선택기 숨기기
+          document.getElementById('graphContainer').addEventListener('click', function(e) {
+              if (e.target === this || e.target.id === 'linesSvg') {
+                  hideThicknessSelector();
+              }
+          });
+
+          // 입력 필드 변경 시 자동 저장
+          document.querySelectorAll('input, textarea').forEach(element => {
+              element.addEventListener('input', autoSave);
+          });
+
+          // 모달 외부 클릭 시 닫기
+          window.onclick = function(event) {
+              const modal = document.getElementById('loadModal');
+              if (event.target == modal) {
+                  closeLoadModal();
+              }
+          }
+      </script>
+  </body>
+  </html>
+
